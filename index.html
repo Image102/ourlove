@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f8e8e8">
+<title>小殷 ♥ 小秦 — 我们的纪念</title>
+
+<!-- ============================================================
+  情侣纪念网站 — 完整独立单文件
+  只需要改下面 <script> 标签里的配置区域，无需其他操作
+  ============================================================ -->
+
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --pink: #e8b4b8;
+  --pink-light: #f5d5d8;
+  --rose: #d4a5a5;
+  --cream: #faf8f5;
+  --warm-bg: #fdf2f2;
+  --brown: #5c4d4d;
+  --brown-light: #8a7a7a;
+  --white: #ffffff;
+  --shadow-soft: 0 4px 20px rgba(140,100,100,0.10);
+  --shadow-card: 0 8px 32px rgba(140,100,100,0.12);
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --font-serif: 'Noto Serif SC', 'STSong', 'Songti SC', 'SimSun', serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-hand: 'ZCOOL XiaoWei', 'KaiTi', 'STKaiti', '楷体', serif;
+  --nav-height: 72px;
+  --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap');
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: var(--font-sans);
+  background: var(--cream);
+  color: var(--brown);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body.locked { overflow: hidden; }
+
+/* ===== Password Gate ===== */
+.gate-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #fdf2f2 0%, #f8e0e0 30%, #fce4ec 60%, #fdf2f2 100%);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+.gate-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.gate-hearts {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+}
+.gate-heart {
+  position: absolute; font-size: 24px; opacity: 0.15;
+  animation: floatUp linear infinite;
+}
+@keyframes floatUp {
+  0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 0; }
+  10% { opacity: 0.2; }
+  90% { opacity: 0.1; }
+  100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
+}
+.gate-card {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 48px 36px 40px;
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  max-width: 380px; width: 90vw;
+  animation: gateIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes gateIn { from { transform: scale(0.85) translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+.gate-card .gate-icon { font-size: 56px; margin-bottom: 16px; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+.gate-card h1 { font-family: var(--font-serif); font-size: 26px; color: var(--brown); margin-bottom: 6px; letter-spacing: 2px; }
+.gate-card .gate-subtitle { font-size: 13px; color: var(--brown-light); margin-bottom: 28px; letter-spacing: 1px; }
+.gate-input-wrap {
+  display: flex; gap: 10px; background: var(--white);
+  border-radius: 50px; padding: 4px 4px 4px 20px;
+  box-shadow: 0 2px 12px rgba(140,100,100,0.08);
+}
+.gate-input-wrap input {
+  flex: 1; border: none; outline: none; font-size: 16px;
+  color: var(--brown); background: transparent;
+  font-family: var(--font-sans); letter-spacing: 3px;
+  min-width: 0;
+}
+.gate-input-wrap input::placeholder { color: #ccbbbb; letter-spacing: 1px; }
+.gate-input-wrap button {
+  background: var(--pink); color: white; border: none;
+  border-radius: 50px; padding: 12px 28px;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: var(--transition); white-space: nowrap;
+  font-family: var(--font-sans);
+}
+.gate-input-wrap button:active { transform: scale(0.95); background: var(--rose); }
+.gate-error { color: #e88; font-size: 13px; margin-top: 12px; min-height: 20px; transition: 0.3s; }
+.gate-shake { animation: shake 0.5s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 50%{transform:translateX(8px)} 75%{transform:translateX(-6px)} }
+
+/* ===== App Container ===== */
+.app-container { max-width: 600px; margin: 0 auto; padding-bottom: var(--nav-height); min-height: 100dvh; }
+
+/* ===== Pages ===== */
+.page {
+  display: none; padding: 24px 20px 40px;
+  animation: pageFadeIn 0.45s ease;
+}
+.page.active { display: block; }
+@keyframes pageFadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* ===== Bottom Navigation ===== */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 600px; z-index: 100;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(200,170,170,0.18);
+  display: flex; justify-content: space-around; align-items: center;
+  height: var(--nav-height);
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; padding: 6px 12px; border-radius: 12px;
+  transition: var(--transition); border: none; background: none;
+  font-family: var(--font-sans); color: var(--brown-light);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none; -webkit-user-select: none;
+  min-width: 60px;
+}
+.nav-item .nav-icon { font-size: 22px; transition: var(--transition); }
+.nav-item .nav-label { font-size: 11px; font-weight: 500; letter-spacing: 0.5px; }
+.nav-item.active { color: var(--pink); }
+.nav-item.active .nav-icon { transform: translateY(-2px); }
+
+/* ===== Music FAB ===== */
+.music-fab {
+  position: fixed; bottom: calc(var(--nav-height) + 20px + env(safe-area-inset-bottom, 0px));
+  right: 20px; z-index: 101;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--white); border: none;
+  box-shadow: var(--shadow-soft);
+  font-size: 22px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition); color: var(--brown);
+  -webkit-tap-highlight-color: transparent;
+}
+.music-fab:active { transform: scale(0.9); }
+.music-fab.playing {
+  background: var(--pink); color: white;
+  animation: musicRotate 3s linear infinite;
+  box-shadow: 0 4px 24px rgba(232,180,184,0.45);
+}
+@keyframes musicRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.music-fab.playing:active { animation: musicRotate 3s linear infinite; transform: scale(0.9); }
+
+/* ===== Home / Hero Page ===== */
+.hero-section {
+  text-align: center; padding: 40px 0 20px;
+}
+.hero-date {
+  font-family: var(--font-serif); font-size: 15px;
+  color: var(--brown-light); letter-spacing: 3px; margin-bottom: 8px;
+}
+.hero-names {
+  font-family: var(--font-serif); font-size: 32px;
+  font-weight: 700; color: var(--brown);
+  letter-spacing: 4px; margin-bottom: 28px;
+}
+.hero-heart { color: var(--pink); margin: 0 8px; display: inline-block; animation: pulse 1.5s ease-in-out infinite; }
+.hero-days-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 36px 28px; box-shadow: var(--shadow-card);
+  margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.hero-days-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--pink-light), var(--pink), var(--rose));
+}
+.hero-days-number {
+  font-family: var(--font-serif); font-size: 72px;
+  font-weight: 700; color: var(--pink);
+  line-height: 1; letter-spacing: -2px;
+}
+.hero-days-label { font-size: 14px; color: var(--brown-light); margin-top: 8px; letter-spacing: 2px; }
+.hero-days-breakdown {
+  display: flex; justify-content: center; gap: 32px; margin-top: 20px;
+}
+.hero-days-breakdown .unit { text-align: center; }
+.hero-days-breakdown .unit .num {
+  font-family: var(--font-serif); font-size: 28px;
+  font-weight: 700; color: var(--brown);
+}
+.hero-days-breakdown .unit .lbl { font-size: 12px; color: var(--brown-light); margin-top: 2px; }
+.hero-floating-hearts {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+}
+.hero-floating-heart {
+  position: absolute; font-size: 18px; opacity: 0.12;
+  animation: heroFloat 8s ease-in-out infinite;
+}
+@keyframes heroFloat {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-30px) rotate(10deg); }
+  66% { transform: translateY(-15px) rotate(-5deg); }
+}
+.hero-quote {
+  font-family: var(--font-hand); font-size: 17px;
+  color: var(--brown-light); margin-top: 16px;
+  letter-spacing: 2px; line-height: 1.8;
+  padding: 0 12px;
+}
+
+/* ===== Gallery Page ===== */
+.gallery-header {
+  text-align: center; margin-bottom: 24px;
+}
+.gallery-header h2 {
+  font-family: var(--font-serif); font-size: 24px;
+  color: var(--brown); letter-spacing: 3px; margin-bottom: 4px;
+  cursor: default; user-select: none;
+}
+.gallery-header p { font-size: 13px; color: var(--brown-light); letter-spacing: 1px; }
+.gallery-masonry {
+  column-count: 2; column-gap: 12px;
+}
+@media (min-width: 500px) { .gallery-masonry { column-count: 3; } }
+@media (min-width: 768px) { .gallery-masonry { column-count: 3; column-gap: 16px; } }
+.gallery-item {
+  break-inside: avoid; margin-bottom: 12px;
+  border-radius: var(--radius-sm); overflow: hidden;
+  cursor: pointer; position: relative;
+  background: linear-gradient(135deg, #fdf2f2, #f8e0e0, #fce4ec);
+  transition: var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+.gallery-item:active { transform: scale(0.97); }
+.gallery-item img {
+  width: 100%; display: block;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  opacity: 0;
+}
+.gallery-item img.loaded { opacity: 1; }
+.gallery-item:hover img.loaded { transform: scale(1.03); }
+@media (hover: none) { .gallery-item:hover img.loaded { transform: none; } }
+.gallery-item .caption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 20px 10px 8px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.35));
+  color: white; font-size: 12px; letter-spacing: 1px;
+  text-align: center; opacity: 0; transition: opacity 0.3s;
+}
+.gallery-item:hover .caption, .gallery-item:active .caption { opacity: 1; }
+.gallery-placeholder {
+  width: 100%; aspect-ratio: 3/4;
+  background: linear-gradient(135deg, #fdf2f2, #f8e0e0, #fce4ec);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--pink-light); font-size: 32px;
+}
+
+/* ===== Gallery Upload ===== */
+.gallery-toolbar {
+  display: flex; justify-content: center; gap: 8px;
+  margin-top: 12px; flex-wrap: wrap;
+}
+.gallery-toolbar button {
+  padding: 8px 16px; border-radius: 50px; border: 1px solid #e8ddd;
+  background: var(--white); font-size: 13px; cursor: pointer;
+  font-family: var(--font-sans); color: var(--brown);
+  transition: var(--transition); letter-spacing: 1px;
+  display: flex; align-items: center; gap: 4px;
+}
+.gallery-toolbar button:active { background: var(--warm-bg); transform: scale(0.95); }
+.gallery-toolbar button.primary {
+  background: var(--pink); color: white; border-color: var(--pink);
+  font-weight: 600;
+}
+.gallery-item.uploaded { position: relative; }
+.gallery-item .delete-btn {
+  position: absolute; top: 6px; right: 6px; z-index: 2;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(0,0,0,0.5); border: none; color: white;
+  font-size: 14px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.3s;
+}
+.gallery-item:hover .delete-btn, .gallery-item:active .delete-btn { opacity: 1; }
+.gallery-upload-zone {
+  border: 2px dashed #e8ddd; border-radius: var(--radius-md);
+  padding: 32px 20px; text-align: center; margin-bottom: 16px;
+  cursor: pointer; transition: var(--transition);
+  background: rgba(255,255,255,0.4);
+}
+.gallery-upload-zone:hover, .gallery-upload-zone.drag-over {
+  border-color: var(--pink); background: rgba(232,180,184,0.08);
+}
+.gallery-upload-zone .upload-icon { font-size: 36px; margin-bottom: 8px; }
+.gallery-upload-zone .upload-text { font-size: 13px; color: var(--brown-light); letter-spacing: 1px; }
+.gallery-upload-progress {
+  width: 100%; height: 4px; background: #eee; border-radius: 2px;
+  margin: 12px 0; overflow: hidden; display: none;
+}
+.gallery-upload-progress .bar {
+  height: 100%; background: var(--pink); border-radius: 2px;
+  transition: width 0.3s;
+}
+.gallery-upload-status {
+  text-align: center; font-size: 12px; color: var(--brown-light);
+  margin-bottom: 8px; min-height: 18px;
+}
+.gallery-count {
+  text-align: center; font-size: 12px; color: var(--brown-light);
+  margin-top: 12px; letter-spacing: 1px;
+}
+/* ---- Admin panel (long-press gallery title 3s to toggle) ---- */
+.gallery-admin-panel {
+  display: none; margin-top: 12px; padding: 12px;
+  background: rgba(255,255,255,0.7); border-radius: var(--radius-sm);
+  font-size: 12px; color: var(--brown-light); text-align: center;
+}
+.gallery-admin-panel.show { display: block; }
+.gallery-admin-panel button {
+  margin: 4px; padding: 6px 14px; border-radius: 50px;
+  border: 1px solid #e8ddd; background: var(--white);
+  font-size: 12px; cursor: pointer; font-family: var(--font-sans);
+  color: var(--brown); transition: var(--transition);
+}
+.gallery-admin-panel button:active { background: var(--warm-bg); }
+.gallery-item .cap-edit {
+  position: absolute; bottom: 38px; left: 6px; right: 6px;
+  background: rgba(0,0,0,0.55); border: none; color: white;
+  font-size: 11px; padding: 4px 8px; border-radius: 6px;
+  text-align: center; opacity: 0; transition: opacity 0.3s;
+  font-family: var(--font-sans);
+}
+.gallery-item:hover .cap-edit, .gallery-item:active .cap-edit { opacity: 1; }
+
+/* ===== Lightbox ===== */
+.lightbox {
+  position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,0.92);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transition: opacity 0.35s ease, visibility 0.35s ease;
+  flex-direction: column;
+}
+.lightbox.open { opacity: 1; visibility: visible; }
+.lightbox img { max-width: 92vw; max-height: 75vh; border-radius: 8px; box-shadow: 0 16px 48px rgba(0,0,0,0.5); }
+.lightbox .lb-caption { color: #ddd; margin-top: 16px; font-size: 14px; letter-spacing: 2px; font-family: var(--font-serif); }
+.lightbox-close {
+  position: absolute; top: 20px; right: 20px;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); border: none;
+  color: white; font-size: 24px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1;
+}
+.lightbox-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); border: none;
+  color: white; font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.lightbox-prev { left: 12px; }
+.lightbox-next { right: 12px; }
+@media (max-width: 480px) {
+  .lightbox-prev { left: 4px; }
+  .lightbox-next { right: 4px; }
+  .lightbox-nav { width: 36px; height: 36px; font-size: 16px; }
+}
+
+/* ===== Letters Page ===== */
+.letters-header {
+  text-align: center; margin-bottom: 24px;
+}
+.letters-header h2 {
+  font-family: var(--font-serif); font-size: 24px;
+  color: var(--brown); letter-spacing: 3px; margin-bottom: 4px;
+}
+.letters-header p { font-size: 13px; color: var(--brown-light); letter-spacing: 1px; }
+.letter-nav-buttons {
+  display: flex; justify-content: center; align-items: center; gap: 16px;
+  margin-bottom: 20px;
+}
+.letter-nav-buttons button {
+  background: var(--white); border: 1px solid #e8ddd;
+  border-radius: 50px; padding: 10px 20px;
+  font-size: 13px; color: var(--brown); cursor: pointer;
+  font-family: var(--font-sans); letter-spacing: 1px;
+  transition: var(--transition);
+}
+.letter-nav-buttons button:active { background: var(--warm-bg); }
+.letter-nav-buttons .letter-indicator {
+  font-size: 13px; color: var(--brown-light); letter-spacing: 1px;
+  min-width: 60px; text-align: center;
+}
+.letter-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 36px 28px; box-shadow: var(--shadow-card);
+  position: relative; overflow: hidden;
+  font-family: var(--font-hand); line-height: 2;
+  letter-spacing: 1px;
+  min-height: 300px;
+}
+.letter-card::after {
+  content: ''; position: absolute; top: 0; left: 24px; width: 1px; height: 100%;
+  background: repeating-linear-gradient(
+    transparent, transparent 28px, rgba(200,170,170,0.2) 28px, rgba(200,170,170,0.2) 29px
+  );
+}
+.letter-card .letter-title {
+  font-family: var(--font-serif); font-size: 20px;
+  color: var(--brown); margin-bottom: 20px; text-align: center;
+  letter-spacing: 3px;
+}
+.letter-card .letter-body {
+  font-size: 16px; color: var(--brown);
+  padding-left: 32px; white-space: pre-wrap;
+  word-break: break-word;
+}
+.letter-card .letter-body .cursor {
+  display: inline-block; width: 2px; height: 18px;
+  background: var(--pink); margin-left: 2px;
+  animation: blink 0.8s step-end infinite; vertical-align: text-bottom;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.letter-card .letter-date {
+  text-align: right; color: var(--brown-light); font-size: 13px;
+  margin-top: 24px; letter-spacing: 2px;
+}
+/* ---- letter edit mode ---- */
+.letter-edit-toggle {
+  display: block; margin: 0 auto 12px; padding: 8px 20px;
+  border-radius: 50px; border: 1px solid #e8ddd;
+  background: var(--white); font-size: 12px; cursor: pointer;
+  font-family: var(--font-sans); color: var(--brown-light);
+  letter-spacing: 1px; transition: var(--transition);
+}
+.letter-edit-toggle:active { background: var(--pink); color: white; border-color: var(--pink); }
+.letter-edit-area {
+  width: 100%; min-height: 260px; border: 1px dashed #e8ddd;
+  border-radius: var(--radius-sm); padding: 16px;
+  font-family: var(--font-hand); font-size: 16px;
+  color: var(--brown); background: rgba(255,255,255,0.5);
+  resize: vertical; line-height: 2; letter-spacing: 1px;
+  margin-left: 24px; width: calc(100% - 24px); box-sizing: border-box;
+}
+.letter-edit-area:focus { outline: none; border-color: var(--pink); background: var(--white); }
+.letter-edit-input {
+  width: 100%; border: 1px dashed #e8ddd; border-radius: var(--radius-sm);
+  padding: 8px 14px; font-family: var(--font-serif); font-size: 20px;
+  color: var(--brown); text-align: center; letter-spacing: 3px;
+  margin-bottom: 8px; background: rgba(255,255,255,0.5);
+}
+.letter-edit-input:focus { outline: none; border-color: var(--pink); }
+.letter-edit-date {
+  width: 100%; border: 1px dashed #e8ddd; border-radius: var(--radius-sm);
+  padding: 6px 14px; font-size: 13px; color: var(--brown-light);
+  text-align: right; margin-bottom: 16px; background: rgba(255,255,255,0.5);
+}
+.letter-edit-date:focus { outline: none; border-color: var(--pink); }
+.letter-edit-actions {
+  display: flex; justify-content: center; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+}
+.letter-edit-actions button {
+  padding: 8px 20px; border-radius: 50px; border: 1px solid #e8ddd;
+  background: var(--white); font-size: 13px; cursor: pointer;
+  font-family: var(--font-sans); color: var(--brown);
+  transition: var(--transition); letter-spacing: 1px;
+}
+.letter-edit-actions button.save { background: var(--pink); color: white; border-color: var(--pink); font-weight: 600; }
+.letter-edit-actions button.danger { color: #c88; border-color: #ecc; }
+.letter-edit-actions button:active { transform: scale(0.95); }
+
+/* ===== List Page (Wishlist + Todo) ===== */
+.list-header {
+  text-align: center; margin-bottom: 24px;
+}
+.list-header h2 {
+  font-family: var(--font-serif); font-size: 24px;
+  color: var(--brown); letter-spacing: 3px; margin-bottom: 4px;
+}
+.list-tabs {
+  display: flex; justify-content: center; gap: 8px; margin-bottom: 24px;
+}
+.list-tab {
+  padding: 10px 24px; border-radius: 50px; border: 1px solid #e8ddd;
+  background: var(--white); font-size: 14px; cursor: pointer;
+  font-family: var(--font-sans); color: var(--brown-light);
+  transition: var(--transition); letter-spacing: 1px;
+}
+.list-tab.active { background: var(--pink); color: white; border-color: var(--pink); font-weight: 600; }
+.list-tab:active { transform: scale(0.95); }
+.list-section { display: none; }
+.list-section.active { display: block; }
+.list-item {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--white); border-radius: var(--radius-md);
+  padding: 16px 20px; margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(140,100,100,0.05);
+  transition: var(--transition); cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.list-item:active { transform: scale(0.98); }
+.list-checkbox {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid #dcc; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition); font-size: 12px; color: transparent;
+}
+.list-item.done .list-checkbox {
+  background: var(--pink); border-color: var(--pink); color: white;
+}
+.list-item.done .list-text {
+  text-decoration: line-through; color: #cbb;
+  text-decoration-color: var(--pink-light);
+}
+.list-text { font-size: 15px; letter-spacing: 1px; transition: var(--transition); flex: 1; }
+.list-item .list-emoji { font-size: 20px; flex-shrink: 0; }
+.list-empty {
+  text-align: center; color: var(--brown-light); padding: 40px 20px;
+  font-size: 14px; letter-spacing: 1px;
+}
+.list-progress {
+  text-align: center; font-size: 13px; color: var(--brown-light);
+  margin-bottom: 16px; letter-spacing: 1px;
+}
+.list-progress span { color: var(--pink); font-weight: 600; font-size: 15px; }
+.list-add-wrap {
+  display: flex; gap: 8px; margin-top: 16px;
+}
+.list-add-wrap input {
+  flex: 1; border: 1px dashed #e8ddd; border-radius: 50px;
+  padding: 10px 16px; font-size: 14px; font-family: var(--font-sans);
+  color: var(--brown); background: var(--white); letter-spacing: 1px;
+}
+.list-add-wrap input:focus { outline: none; border-color: var(--pink); }
+.list-add-wrap button {
+  padding: 10px 18px; border-radius: 50px; border: none;
+  background: var(--pink); color: white; font-size: 14px;
+  cursor: pointer; font-family: var(--font-sans); font-weight: 600;
+  white-space: nowrap; transition: var(--transition);
+}
+.list-add-wrap button:active { transform: scale(0.95); }
+.list-item .item-delete {
+  width: 24px; height: 24px; border-radius: 50%; border: none;
+  background: transparent; color: #cbb; font-size: 14px;
+  cursor: pointer; flex-shrink: 0; transition: var(--transition);
+  display: flex; align-items: center; justify-content: center;
+}
+.list-item .item-delete:active { color: #e88; background: #fef0f0; }
+.list-item .item-edit-input {
+  flex: 1; border: none; border-bottom: 1px dashed var(--pink-light);
+  font-size: 15px; font-family: var(--font-sans); color: var(--brown);
+  background: transparent; padding: 2px 4px; letter-spacing: 1px;
+  outline: none;
+}
+.list-item .emoji-picker-btn {
+  width: 28px; height: 28px; border-radius: 50%; border: 1px solid #e8ddd;
+  background: var(--white); font-size: 14px; cursor: pointer;
+  flex-shrink: 0; transition: var(--transition);
+}
+.list-item .emoji-picker-btn:active { background: var(--warm-bg); }
+
+/* ===== Footer ===== */
+.app-footer {
+  text-align: center; padding: 30px 20px 10px;
+  font-size: 12px; color: var(--brown-light); letter-spacing: 2px;
+  font-family: var(--font-serif);
+}
+
+/* ===== Section Titles (shared) ===== */
+.section-title {
+  font-family: var(--font-serif); font-size: 22px;
+  text-align: center; color: var(--brown);
+  letter-spacing: 3px; margin: 32px 0 20px;
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+  background: var(--brown); color: white; padding: 12px 28px;
+  border-radius: 50px; font-size: 14px; z-index: 10000;
+  letter-spacing: 1px; opacity: 0; transition: opacity 0.35s;
+  pointer-events: none; font-family: var(--font-sans);
+}
+.toast.show { opacity: 1; }
+
+/* ===== Responsive ===== */
+@media (max-width: 380px) {
+  .hero-days-number { font-size: 56px; }
+  .hero-names { font-size: 26px; }
+  .hero-days-breakdown { gap: 20px; }
+  .hero-days-breakdown .unit .num { font-size: 24px; }
+  .gate-card { padding: 36px 24px 30px; }
+  .letter-card { padding: 24px 18px; }
+  .letter-card .letter-body { padding-left: 24px; font-size: 15px; }
+}
+@media (min-width: 768px) {
+  .app-container { padding: 0 20px 100px; }
+  .bottom-nav { border-radius: 20px 20px 0 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Password Gate ===== -->
+<div class="gate-overlay" id="gate">
+  <div class="gate-hearts" id="gateHearts"></div>
+  <div class="gate-card">
+    <div class="gate-icon">💕</div>
+    <h1>小殷 ♥ 小秦</h1>
+    <p class="gate-subtitle">输入我们的密码，进入我们的世界</p>
+    <div class="gate-input-wrap">
+      <input type="password" id="pwdInput" placeholder="输入密码" maxlength="20" autocomplete="off">
+      <button id="pwdBtn">💫 进入</button>
+    </div>
+    <p class="gate-error" id="gateError"></p>
+  </div>
+</div>
+
+<!-- ===== Main App ===== -->
+<div class="app-container" id="app" style="display:none">
+
+  <!-- Home Page -->
+  <section class="page active" id="page-home">
+    <div class="hero-section">
+      <p class="hero-date">2023 / 08 / 27</p>
+      <h1 class="hero-names">小殷 <span class="hero-heart">♥</span> 小秦</h1>
+      <div class="hero-days-card">
+        <div class="hero-days-number" id="daysCount">0</div>
+        <div class="hero-days-label">天 · 在一起的时光</div>
+        <div class="hero-days-breakdown">
+          <div class="unit"><div class="num" id="daysYear">0</div><div class="lbl">年</div></div>
+          <div class="unit"><div class="num" id="daysMonth">0</div><div class="lbl">月</div></div>
+          <div class="unit"><div class="num" id="daysDay">0</div><div class="lbl">天</div></div>
+        </div>
+      </div>
+      <p class="hero-quote" id="heroQuote">" 遇见你，是我最美丽的意外 "<br>—— 致我的小殷</p>
+    </div>
+    <div class="hero-floating-hearts" id="heroHearts"></div>
+  </section>
+
+  <!-- Gallery Page -->
+  <section class="page" id="page-gallery">
+    <div class="gallery-header">
+      <h2 id="galleryTitle">📷 我们的瞬间</h2>
+      <p>每一次定格，都是心动的证据</p>
+      <div class="gallery-toolbar">
+        <button class="primary" id="uploadBtn">📤 上传照片</button>
+        <button id="exportBtn" style="display:none">💾 导出</button>
+        <button id="importBtn" style="display:none">📥 导入</button>
+      </div>
+      <div class="gallery-upload-zone" id="uploadZone" style="display:none">
+        <div class="upload-icon">📸</div>
+        <div class="upload-text">点击选择照片 或 拖拽到此处<br><small>支持 jpg / png / webp，自动压缩</small></div>
+      </div>
+      <div class="gallery-upload-progress" id="uploadProgress">
+        <div class="bar" id="uploadBar"></div>
+      </div>
+      <div class="gallery-upload-status" id="uploadStatus"></div>
+      <div class="gallery-count" id="galleryCount"></div>
+    </div>
+    <div class="gallery-masonry" id="galleryMasonry"></div>
+    <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+  </section>
+
+  <!-- Letters Page -->
+  <section class="page" id="page-letters">
+    <div class="letters-header">
+      <h2>💌 手写情书</h2>
+      <p>字字不提爱，句句都是爱</p>
+      <button class="letter-edit-toggle" id="letterEditToggle">✏️ 编辑模式</button>
+    </div>
+    <div class="letter-nav-buttons" id="letterNavBtns">
+      <button id="letterPrev">◂ 上一封</button>
+      <span class="letter-indicator" id="letterIndicator">1 / 1</span>
+      <button id="letterNext">下一封 ▸</button>
+    </div>
+    <div class="letter-card" id="letterCard"></div>
+    <div class="letter-edit-actions" id="letterEditActions" style="display:none"></div>
+  </section>
+
+  <!-- List Page -->
+  <section class="page" id="page-list">
+    <div class="list-header">
+      <h2>📝 我们的清单</h2>
+    </div>
+    <div class="list-tabs">
+      <button class="list-tab active" data-tab="wishlist">💕 愿望清单</button>
+      <button class="list-tab" data-tab="todo">📋 待办事项</button>
+    </div>
+    <div class="list-progress" id="listProgress"></div>
+    <div class="list-section active" id="wishlist"></div>
+    <div class="list-section" id="todo"></div>
+    <div class="list-add-wrap" id="listAddWrap" style="display:none">
+      <input type="text" id="listAddInput" placeholder="添加新项目..." maxlength="80">
+      <button id="listAddBtn">➕ 添加</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div class="app-footer">💕 小殷 & 小秦 · Forever 💕</div>
+</div>
+
+<!-- ===== Bottom Nav ===== -->
+<nav class="bottom-nav" id="bottomNav" style="display:none">
+  <button class="nav-item active" data-page="page-home">
+    <span class="nav-icon">🏠</span><span class="nav-label">首页</span>
+  </button>
+  <button class="nav-item" data-page="page-gallery">
+    <span class="nav-icon">📷</span><span class="nav-label">相册</span>
+  </button>
+  <button class="nav-item" data-page="page-letters">
+    <span class="nav-icon">💌</span><span class="nav-label">情书</span>
+  </button>
+  <button class="nav-item" data-page="page-list">
+    <span class="nav-icon">📝</span><span class="nav-label">清单</span>
+  </button>
+</nav>
+
+<!-- ===== Music FAB ===== -->
+<button class="music-fab" id="musicFab" style="display:none" title="音乐开关">🎵</button>
+
+<!-- ===== Lightbox ===== -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lbClose">✕</button>
+  <button class="lightbox-nav lightbox-prev" id="lbPrev">◂</button>
+  <img src="" alt="" id="lbImg">
+  <p class="lb-caption" id="lbCaption"></p>
+  <button class="lightbox-nav lightbox-next" id="lbNext">▸</button>
+</div>
+
+<!-- ===== Audio ===== -->
+<audio id="bgMusic" loop preload="auto"></audio>
+
+<!-- ===== Toast ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+  🔧 配置区域 —— 只改这里！！！
+  ============================================================
+  改完刷新页面即可生效，无需任何其他操作
+  ============================================================ */
+
+// ---------- 访问密码 ----------
+const CORRECT_PASSWORD = '183623';
+
+// ---------- 恋爱起始日期 ----------
+// 格式：'YYYY-MM-DD'  必须是这个格式，否则计时器不生效
+const START_DATE = '2023-08-27';
+
+// ---------- 称呼/昵称 ----------
+const MY_NAME = '小殷';
+const PARTNER_NAME = '小秦';
+
+// ---------- 背景音乐 ----------
+// 替换为你的 mp3 直链（推荐放 GitHub 仓库里，链接格式见文件底部说明）
+// 留空则音乐按钮不生效
+const MUSIC_URL = '';
+
+// ---------- 顶部情话 ----------
+const HERO_QUOTE = '" 遇见你，是我最美丽的意外 "\n—— 致我的' + MY_NAME;
+
+// ---------- 照片列表 ----------
+// 每张照片一个 { src: '链接', caption: '描述' }
+// 照片链接格式（GitHub）：https://你的用户名.github.io/仓库名/photos/01.jpg
+// 想加多少加多少，在下面数组里继续添加就行
+const PHOTOS = [
+  { src: '', caption: '我们的第一张合照' },
+  { src: '', caption: '那天阳光正好' },
+  { src: '', caption: '和你在一起的每一天' },
+  { src: '', caption: '笑得多开心' },
+  { src: '', caption: '最好的时光' },
+  { src: '', caption: '一直走下去' },
+  { src: '', caption: '有你在身边' },
+  { src: '', caption: '陪你到世界尽头' },
+  { src: '', caption: '爱你' },
+];
+
+// ---------- 在线图床（可选，传图后自动转在线链接）----------
+// 去 https://api.imgbb.com 免费注册，获取 API Key 填在这里
+// 填了之后，上传的照片会自动存到云端，两人都能看到同一批照片
+// 不填也没关系，照片会存在浏览器本地（不同设备各自上传）
+const IMGBB_API_KEY = '';
+
+// ---------- 上传照片压缩尺寸 ----------
+// 上传的照片会自动压缩到此宽度（像素），建议 1200-2000
+const UPLOAD_MAX_WIDTH = 1600;
+const UPLOAD_QUALITY = 0.78; // 0-1，越大越清晰但文件越大
+
+// ---------- 情书列表 ----------
+// 每封情书一个 { title: '标题', date: '日期', body: '正文（支持换行）' }
+// 可以继续添加更多封，添加几封就有几封可以左右翻看
+const LETTERS = [
+  {
+    title: '写给我的小秦',
+    date: '2023年8月27日',
+    body: '亲爱的：\n\n今天是我们在一起的第一天。\n\n我写这封信的时候手有点抖，不是因为紧张，是因为太开心了。我一直觉得，能遇到一个让自己心动的人，是世界上最难得的事。\n\n而我遇到了你。\n\n谢谢你愿意和我一起走这一段路。我会用我全部的温柔和耐心，陪你走到很远很远。\n\n你的小殷'
+  },
+  {
+    title: '给你的一封情书',
+    date: '2024年2月14日',
+    body: '宝贝：\n\n这是我们在一起的第一个情人节。\n\n我想对你说的话有很多，但话到嘴边又觉得怎么说都不够。和你在一起的每一天，都像是偷来的糖，甜甜的，舍不得吃完。\n\n我喜欢你笑起来眼睛弯弯的样子。\n喜欢你认真起来微微皱眉的样子。\n喜欢你的一切。\n\n情人节快乐，我的小秦。\n\n爱你的小殷'
+  },
+  {
+    title: '致我最爱的你',
+    date: '2025年8月27日',
+    body: '两周年了。\n\n时间过得好快，快到我有时候不敢相信我们已经一起走过了两年。这两年里有笑有泪，有争吵也有拥抱，但最重要的是——我们一直在一起。\n\n我想和你去看很多很多地方。\n想去海边看日出，想去山顶看星星。\n想和你一起做很多无聊的小事。\n\n因为是你，所以一切都变得有意义。\n\n永远爱你的 小殷'
+  },
+];
+
+// ---------- 愿望清单 ----------
+// { emoji: '图标', text: '愿望描述' }
+const WISHLIST = [
+  { emoji: '🌅', text: '一起看一次海上日出' },
+  { emoji: '🏔️', text: '一起去爬一座山，在山顶拍照' },
+  { emoji: '✈️', text: '一起出国旅行一次' },
+  { emoji: '🍳', text: '一起做一顿饭，不管好不好吃' },
+  { emoji: '🎬', text: '一起看完一部电影马拉松' },
+  { emoji: '🎵', text: '一起听一场现场音乐会' },
+  { emoji: '📸', text: '拍一套正式的合照' },
+  { emoji: '💌', text: '互相写一封手写信' },
+  { emoji: '🌌', text: '一起躺在草地上看星星' },
+  { emoji: '🍰', text: '一起做一个蛋糕（不管成不成功）' },
+  { emoji: '🚗', text: '一起自驾游，没有目的地那种' },
+  { emoji: '💒', text: '一起参加一场婚礼' },
+];
+
+// ---------- 待办事项 ----------
+// { emoji: '图标', text: '待办描述' }
+const TODOLIST = [
+  { emoji: '🎁', text: '准备周年纪念礼物' },
+  { emoji: '📅', text: '计划下一次约会' },
+  { emoji: '🏠', text: '布置我们的家' },
+  { emoji: '📖', text: '一起读一本书' },
+  { emoji: '🎯', text: '制定今年的共同目标' },
+  { emoji: '💇', text: '一起去换个新发型' },
+  { emoji: '🧹', text: '一起大扫除' },
+  { emoji: '🛒', text: '一起去超市采购一周食材' },
+];
+
+/* ============================================================
+  ⚠️ 以下为页面逻辑代码，一般不需要修改
+  如果你懂 JS，可以自由扩展功能
+  ============================================================ */
+
+// ===== DOM Elements =====
+const $ = id => document.getElementById(id);
+const gate = $('gate');
+const app = $('app');
+const bottomNav = $('bottomNav');
+const musicFab = $('musicFab');
+const bgMusic = $('bgMusic');
+const toast = $('toast');
+const lightbox = $('lightbox');
+
+// ===== Helpers =====
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+function getStorage(key, fallback = null) {
+  try { const v = localStorage.getItem('love_' + key); return v !== null ? JSON.parse(v) : fallback; }
+  catch(e) { return fallback; }
+}
+function setStorage(key, value) {
+  try { localStorage.setItem('love_' + key, JSON.stringify(value)); } catch(e) {}
+}
+
+// ===== Password Gate =====
+(function initGate() {
+  // Check cached password (30 min expiry)
+  const cached = getStorage('pwd_time', 0);
+  if (cached && (Date.now() - cached < 30 * 60 * 1000)) {
+    openGate();
+    return;
+  }
+
+  // Generate floating hearts
+  const heartsContainer = $('gateHearts');
+  for (let i = 0; i < 15; i++) {
+    const h = document.createElement('span');
+    h.className = 'gate-heart';
+    h.textContent = ['💕','💖','💗','💝','❤️','🩷'][i % 6];
+    h.style.left = Math.random() * 90 + '%';
+    h.style.animationDuration = (8 + Math.random() * 10) + 's';
+    h.style.animationDelay = Math.random() * 8 + 's';
+    h.style.fontSize = (14 + Math.random() * 24) + 'px';
+    heartsContainer.appendChild(h);
+  }
+
+  const input = $('pwdInput');
+  const btn = $('pwdBtn');
+  const error = $('gateError');
+
+  function tryPassword() {
+    if (input.value === CORRECT_PASSWORD) {
+      error.textContent = '';
+      setStorage('pwd_time', Date.now());
+      gate.classList.add('hidden');
+      setTimeout(openGate, 500);
+    } else {
+      error.textContent = '密码不对哦，再试试 ❤️';
+      gate.querySelector('.gate-card').classList.add('gate-shake');
+      setTimeout(() => gate.querySelector('.gate-card').classList.remove('gate-shake'), 500);
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  btn.addEventListener('click', tryPassword);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') tryPassword(); });
+})();
+
+function openGate() {
+  gate.classList.add('hidden');
+  app.style.display = '';
+  bottomNav.style.display = '';
+  if (MUSIC_URL) {
+    musicFab.style.display = '';
+  }
+  document.body.classList.remove('locked');
+  initApp();
+}
+document.body.classList.add('locked');
+
+// ===== App Init =====
+function initApp() {
+  initHeroHearts();
+  initDaysCounter();
+  initMusic();
+  initGallery();
+  initLetters();
+  initList();
+  initNav();
+  initKeyboardNav();
+}
+
+// ===== Floating Hearts (Hero) =====
+function initHeroHearts() {
+  // Update quote from config
+  $('heroQuote').innerHTML = HERO_QUOTE.replace(/\n/g, '<br>');
+  const container = $('heroHearts');
+  const emojis = ['💕','💖','💗','🩷','✨','🌸','💫'];
+  for (let i = 0; i < 12; i++) {
+    const h = document.createElement('span');
+    h.className = 'hero-floating-heart';
+    h.textContent = emojis[i % emojis.length];
+    h.style.left = Math.random() * 90 + '%';
+    h.style.top = Math.random() * 85 + '%';
+    h.style.animationDelay = Math.random() * 8 + 's';
+    h.style.animationDuration = (6 + Math.random() * 8) + 's';
+    h.style.fontSize = (12 + Math.random() * 20) + 'px';
+    container.appendChild(h);
+  }
+}
+
+// ===== Days Counter =====
+function initDaysCounter() {
+  const startDate = new Date(START_DATE + 'T00:00:00');
+
+  function update() {
+    const now = new Date();
+    const diffMs = now - startDate;
+    const totalDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+
+    $('daysCount').textContent = totalDays.toLocaleString();
+
+    // Calculate years, months, days
+    let years = now.getFullYear() - startDate.getFullYear();
+    let months = now.getMonth() - startDate.getMonth();
+    let days = now.getDate() - startDate.getDate();
+
+    if (days < 0) {
+      months--;
+      const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+      days += prevMonth.getDate();
+    }
+    if (months < 0) { years--; months += 12; }
+    if (years < 0) { years = 0; months = 0; days = totalDays; }
+
+    $('daysYear').textContent = years;
+    $('daysMonth').textContent = months;
+    $('daysDay').textContent = days;
+  }
+
+  update();
+  setInterval(update, 1000);
+}
+
+// ===== Music Player =====
+function initMusic() {
+  if (!MUSIC_URL) return;
+
+  bgMusic.src = MUSIC_URL;
+  bgMusic.muted = true;
+  bgMusic.volume = 0.5;
+
+  // Try autoplay
+  const playPromise = bgMusic.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      // Autoplay blocked, wait for user interaction
+      document.addEventListener('click', function playOnce() {
+        bgMusic.play().catch(() => {});
+        document.removeEventListener('click', playOnce);
+      }, { once: true });
+    });
+  }
+
+  let playing = false;
+  musicFab.addEventListener('click', () => {
+    if (!playing) {
+      bgMusic.muted = false;
+      bgMusic.play().catch(() => {});
+      musicFab.classList.add('playing');
+      musicFab.textContent = '🎶';
+      playing = true;
+      showToast('🎵 音乐开启');
+    } else {
+      bgMusic.muted = true;
+      musicFab.classList.remove('playing');
+      musicFab.textContent = '🎵';
+      playing = false;
+      showToast('🔇 音乐关闭');
+    }
+  });
+
+  // Load saved preference
+  const savedMuted = getStorage('music_muted', true);
+  if (!savedMuted) {
+    bgMusic.muted = false;
+    musicFab.classList.add('playing');
+    musicFab.textContent = '🎶';
+    playing = true;
+  }
+
+  // Save on change
+  const observer = new MutationObserver(() => {
+    setStorage('music_muted', bgMusic.muted);
+  });
+  observer.observe(bgMusic, { attributes: true, attributeFilter: ['muted'] });
+}
+
+// ===== IndexedDB Storage =====
+const DB_NAME = 'LoveGalleryDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'photos';
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) { reject(new Error('IndexedDB not supported')); return; }
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = (e) => resolve(e.target.result);
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+
+function dbAddPhoto(photo) {
+  return openDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).add(photo);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+    db.close();
+  }));
+}
+
+function dbDeletePhoto(id) {
+  return openDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+    db.close();
+  }));
+}
+
+function dbGetAllPhotos() {
+  return openDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const req = tx.objectStore(STORE_NAME).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = (e) => reject(e.target.error);
+    db.close();
+  }));
+}
+
+function dbClearAll() {
+  return openDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).clear();
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+    db.close();
+  }));
+}
+
+// ===== Image Compression =====
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > UPLOAD_MAX_WIDTH) {
+          height = Math.round(height * (UPLOAD_MAX_WIDTH / width));
+          width = UPLOAD_MAX_WIDTH;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const reader2 = new FileReader();
+            reader2.onloadend = () => resolve(reader2.result);
+            reader2.readAsDataURL(blob);
+          } else {
+            resolve(e.target.result); // fallback: no compression
+          }
+        }, 'image/jpeg', UPLOAD_QUALITY);
+      };
+      img.onerror = () => reject(new Error('Image load failed'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('File read failed'));
+    reader.readAsDataURL(file);
+  });
+}
+
+// ===== Photo Gallery (with Upload) =====
+let _allPhotos = []; // combined: config + uploaded
+let _observer = null;
+
+async function loadAllPhotos() {
+  const configPhotos = PHOTOS.filter(p => p.src && p.src.trim()).map((p, i) => ({
+    id: 'config_' + i,
+    src: p.src,
+    caption: p.caption || '',
+    source: 'config'
+  }));
+  let uploadedPhotos = [];
+  try {
+    uploadedPhotos = await dbGetAllPhotos();
+  } catch(e) { /* IndexedDB unavailable */ }
+  _allPhotos = [...configPhotos, ...uploadedPhotos];
+  return _allPhotos;
+}
+
+function getPhotoIndex(photo) {
+  return _allPhotos.findIndex(p => p.id === photo.id);
+}
+
+async function renderGallery() {
+  await loadAllPhotos();
+  const container = $('galleryMasonry');
+  container.innerHTML = '';
+
+  window._lbPhotos = _allPhotos;
+
+  // Update count
+  $('galleryCount').textContent = '共 ' + _allPhotos.length + ' 张照片';
+
+  if (_allPhotos.length === 0) {
+    for (let i = 0; i < 6; i++) {
+      const item = document.createElement('div');
+      item.className = 'gallery-item';
+      item.innerHTML = '<div class="gallery-placeholder">📷</div>';
+      container.appendChild(item);
+    }
+    return;
+  }
+
+  // Clean up old observer
+  if (_observer) _observer.disconnect();
+
+  _observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        const dataSrc = img.getAttribute('data-src');
+        if (dataSrc) {
+          img.src = dataSrc;
+          img.onload = () => img.classList.add('loaded');
+          img.onerror = () => { img.style.opacity = '0.4'; img.classList.add('loaded'); };
+          img.removeAttribute('data-src');
+        }
+        _observer.unobserve(img);
+      }
+    });
+  }, { rootMargin: '300px' });
+
+  _allPhotos.forEach((photo) => {
+    const idx = getPhotoIndex(photo);
+    const item = document.createElement('div');
+    item.className = 'gallery-item' + (photo.source === 'uploaded' ? ' uploaded' : '');
+    item.setAttribute('data-idx', idx);
+
+    const img = document.createElement('img');
+    img.setAttribute('data-src', photo.src);
+    img.alt = photo.caption || '我们的照片';
+    img.style.background = 'linear-gradient(135deg, #fdf2f2, #f8e0e0, #fce4ec)';
+    _observer.observe(img);
+
+    // Caption
+    const caption = document.createElement('div');
+    caption.className = 'caption';
+    caption.textContent = photo.caption || '';
+
+    // Delete button (uploaded only)
+    if (photo.source === 'uploaded') {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete-btn';
+      delBtn.textContent = '✕';
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteUploadedPhoto(photo.id);
+      });
+      item.appendChild(delBtn);
+    }
+
+    item.appendChild(img);
+    item.appendChild(caption);
+
+    item.addEventListener('click', () => openLightbox(idx));
+    container.appendChild(item);
+  });
+}
+
+async function deleteUploadedPhoto(id) {
+  if (!confirm('确定删除这张照片吗？')) return;
+  try { await dbDeletePhoto(id); } catch(e) {}
+  await renderGallery();
+  showToast('照片已删除');
+}
+
+// ===== Upload Handlers =====
+function initGallery() {
+  renderGallery();
+  initLightbox();
+  initUploadUI();
+  initAdminPanel();
+}
+
+function initUploadUI() {
+  const uploadBtn = $('uploadBtn');
+  const uploadZone = $('uploadZone');
+  const fileInput = $('fileInput');
+  let _showUpload = false;
+
+  // Toggle upload zone
+  uploadBtn.addEventListener('click', () => {
+    _showUpload = !_showUpload;
+    uploadZone.style.display = _showUpload ? '' : 'none';
+    uploadBtn.textContent = _showUpload ? '🔽 收起上传' : '📤 上传照片';
+    $('uploadStatus').textContent = '';
+    $('uploadProgress').style.display = 'none';
+  });
+
+  // Click zone to select files
+  uploadZone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+  // Drag & drop
+  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+}
+
+async function handleFiles(files) {
+  if (!files || files.length === 0) return;
+
+  const validFiles = Array.from(files).filter(f => f.type.match(/^image\/(jpeg|png|webp)$/));
+  if (validFiles.length === 0) { showToast('请选择 jpg / png / webp 格式的图片'); return; }
+
+  const progressBar = $('uploadBar');
+  const progressEl = $('uploadProgress');
+  const statusEl = $('uploadStatus');
+  progressEl.style.display = '';
+  progressBar.style.width = '0%';
+
+  let processed = 0;
+  let uploaded = 0;
+
+  for (const file of validFiles) {
+    statusEl.textContent = '正在处理: ' + file.name + ' (' + (processed + 1) + '/' + validFiles.length + ')';
+
+    try {
+      let dataUrl;
+      let externalUrl = '';
+
+      // Try imgbb first if API key is set
+      if (IMGBB_API_KEY) {
+        try {
+          const formData = new FormData();
+          formData.append('image', file);
+          const resp = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY, {
+            method: 'POST', body: formData
+          });
+          const json = await resp.json();
+          if (json.success) {
+            externalUrl = json.data.url;
+            dataUrl = externalUrl; // Use the external URL
+          }
+        } catch(e) { /* fallback to local */ }
+      }
+
+      // If no external URL, compress and store as base64
+      if (!externalUrl) {
+        dataUrl = await compressImage(file);
+      }
+
+      // Save to IndexedDB
+      const photo = {
+        id: 'uploaded_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        src: dataUrl,
+        caption: '',
+        source: 'uploaded',
+        uploadedAt: Date.now(),
+        fileName: file.name
+      };
+      await dbAddPhoto(photo);
+      uploaded++;
+    } catch(e) {
+      console.error('Upload failed:', file.name, e);
+    }
+
+    processed++;
+    progressBar.style.width = Math.round((processed / validFiles.length) * 100) + '%';
+  }
+
+  if (uploaded > 0) {
+    showToast('✅ 成功上传 ' + uploaded + ' 张照片！');
+    statusEl.textContent = '上传完成！共 ' + uploaded + ' 张';
+  } else {
+    statusEl.textContent = '上传失败，请重试';
+    showToast('上传失败，请检查图片格式');
+  }
+
+  await renderGallery();
+
+  // Hide progress after a moment
+  setTimeout(() => {
+    progressEl.style.display = 'none';
+    progressBar.style.width = '0%';
+    if (statusEl.textContent.includes('上传完成')) statusEl.textContent = '';
+  }, 3000);
+}
+
+// ===== Export / Import =====
+async function exportPhotos() {
+  const uploaded = _allPhotos.filter(p => p.source === 'uploaded');
+  if (uploaded.length === 0) { showToast('没有可导出的上传照片'); return; }
+  const data = JSON.stringify(uploaded, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '我们的照片备份_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('💾 导出成功！');
+}
+
+async function importPhotos() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const photos = JSON.parse(text);
+      if (!Array.isArray(photos)) throw new Error('Invalid format');
+      let count = 0;
+      for (const p of photos) {
+        if (p.src && p.id) {
+          p.source = 'uploaded';
+          try { await dbAddPhoto(p); count++; } catch(e) {}
+        }
+      }
+      if (count > 0) {
+        showToast('📥 导入 ' + count + ' 张照片！');
+        await renderGallery();
+      } else {
+        showToast('导入失败：文件格式不对');
+      }
+    } catch(e) {
+      showToast('导入失败：无效的备份文件');
+    }
+  };
+  input.click();
+}
+
+// ===== Admin Panel (long-press gallery title for 3 seconds) =====
+function initAdminPanel() {
+  const title = $('galleryTitle');
+  let pressTimer;
+  let adminShown = false;
+
+  function showAdmin() {
+    adminShown = true;
+    $('exportBtn').style.display = '';
+    $('importBtn').style.display = '';
+    showToast('🔓 管理面板已开启');
+  }
+
+  title.addEventListener('pointerdown', () => {
+    if (adminShown) return;
+    pressTimer = setTimeout(showAdmin, 3000);
+  });
+  title.addEventListener('pointerup', () => clearTimeout(pressTimer));
+  title.addEventListener('pointerleave', () => clearTimeout(pressTimer));
+  title.addEventListener('pointercancel', () => clearTimeout(pressTimer));
+
+  $('exportBtn').addEventListener('click', exportPhotos);
+  $('importBtn').addEventListener('click', importPhotos);
+}
+
+// ===== Lightbox =====
+
+// ===== Lightbox =====
+function initLightbox() {
+  window._lbPhotos = window._lbPhotos || [];
+  window._lbIndex = 0;
+
+  $('lbClose').addEventListener('click', closeLightbox);
+  $('lbPrev').addEventListener('click', () => navigateLightbox(-1));
+  $('lbNext').addEventListener('click', () => navigateLightbox(1));
+  lightbox.addEventListener('click', e => {
+    if (e.target === lightbox) closeLightbox();
+  });
+}
+
+function openLightbox(idx) {
+  const photos = window._lbPhotos;
+  if (!photos.length) return;
+  window._lbIndex = idx;
+  updateLightboxImage();
+  lightbox.classList.add('open');
+  document.body.classList.add('locked');
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.classList.remove('locked');
+}
+
+function navigateLightbox(dir) {
+  const photos = window._lbPhotos;
+  if (!photos.length) return;
+  window._lbIndex = (window._lbIndex + dir + photos.length) % photos.length;
+  updateLightboxImage();
+}
+
+function updateLightboxImage() {
+  const photos = window._lbPhotos;
+  const idx = window._lbIndex;
+  const img = $('lbImg');
+  img.style.opacity = '0';
+  setTimeout(() => {
+    img.src = photos[idx].src;
+    img.alt = photos[idx].caption || '';
+    $('lbCaption').textContent = photos[idx].caption || '';
+    img.style.opacity = '1';
+  }, 150);
+  img.style.transition = 'opacity 0.25s ease';
+}
+
+// ===== Love Letters (editable) =====
+function initLetters() {
+  let currentIdx = 0;
+  let editMode = false; // false=display, true=edit
+  let lettersData = []; // loaded from IndexedDB or config
+
+  async function loadLetters() {
+    try {
+      const db = await openDB();
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const req = tx.objectStore(STORE_NAME).get('__letters__');
+      const result = await new Promise(r => { req.onsuccess = () => r(req.result); req.onerror = () => r(null); });
+      db.close();
+      if (result && Array.isArray(result.data) && result.data.length > 0) {
+        lettersData = result.data;
+        return;
+      }
+    } catch(e) {}
+    lettersData = LETTERS.map(l => ({ ...l }));
+  }
+
+  async function saveLetters() {
+    try {
+      const db = await openDB();
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).put({ id: '__letters__', data: lettersData });
+      await new Promise(r => { tx.oncomplete = () => r(); tx.onerror = () => r(); });
+      db.close();
+    } catch(e) {}
+  }
+
+  function showLetter(idx) {
+    if (lettersData.length === 0) {
+      $('letterCard').innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--brown-light)">💌<br>还没有情书<br>点击「✏️ 编辑模式」开始写吧</div>';
+      $('letterIndicator').textContent = '0 / 0';
+      $('letterPrev').style.visibility = 'hidden';
+      $('letterNext').style.visibility = 'hidden';
+      return;
+    }
+
+    const letter = lettersData[idx];
+    $('letterIndicator').textContent = (idx + 1) + ' / ' + lettersData.length;
+    $('letterPrev').style.visibility = idx > 0 ? '' : 'hidden';
+    $('letterNext').style.visibility = idx < lettersData.length - 1 ? '' : 'hidden';
+    $('letterNavBtns').style.display = editMode ? 'none' : '';
+
+    const card = $('letterCard');
+
+    if (editMode) {
+      card.innerHTML = `
+        <input class="letter-edit-input" id="editTitle" value="${escHtml(letter.title)}" placeholder="标题">
+        <input class="letter-edit-date" id="editDate" value="${escHtml(letter.date || '')}" placeholder="日期（可选）">
+        <textarea class="letter-edit-area" id="editBody" placeholder="写下你的心里话...">${escHtml(letter.body)}</textarea>
+      `;
+    } else {
+      card.innerHTML = `
+        <div class="letter-title">${escHtml(letter.title)}</div>
+        <div class="letter-body" id="letterBody"></div>
+        <div class="letter-date">${escHtml(letter.date || '')}</div>
+      `;
+      typeWriter($('letterBody'), letter.body, 0);
+    }
+    renderEditActions(idx);
+  }
+
+  function typeWriter(el, text, pos) {
+    if (pos === 0) el.textContent = '';
+    if (pos < text.length) {
+      el.innerHTML = el.innerHTML.replace('<span class="cursor"></span>', '') + text[pos].replace(/\n/g, '<br>') + '<span class="cursor"></span>';
+      setTimeout(() => typeWriter(el, text, pos + 1), 40);
+    } else {
+      const cursor = el.querySelector('.cursor');
+      if (cursor) cursor.remove();
+    }
+  }
+
+  function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  function renderEditActions(idx) {
+    const wrap = $('letterEditActions');
+    if (!editMode) { wrap.style.display = 'none'; return; }
+    wrap.style.display = '';
+
+    const total = lettersData.length;
+    wrap.innerHTML = `
+      <button class="save" id="letterSaveBtn">💾 保存</button>
+      <button id="letterNewBtn">➕ 新建情书</button>
+      ${total > 1 ? '<button class="danger" id="letterDelBtn">🗑 删除此封</button>' : ''}
+    `;
+
+    $('letterSaveBtn').addEventListener('click', async () => {
+      lettersData[idx] = {
+        title: $('editTitle').value.trim() || '未命名',
+        date: $('editDate').value.trim(),
+        body: $('editBody').value
+      };
+      await saveLetters();
+      showLetter(idx);
+      showToast('💾 已保存');
+    });
+
+    $('letterNewBtn').addEventListener('click', async () => {
+      lettersData.push({ title: '新情书', date: new Date().toISOString().slice(0,10), body: '在这里写下你的心里话...' });
+      await saveLetters();
+      currentIdx = lettersData.length - 1;
+      showLetter(currentIdx);
+      showToast('➕ 新建成功');
+    });
+
+    if (total > 1) {
+      $('letterDelBtn').addEventListener('click', async () => {
+        if (!confirm('确定删除「' + lettersData[idx].title + '」吗？此操作不可恢复。')) return;
+        lettersData.splice(idx, 1);
+        await saveLetters();
+        if (currentIdx >= lettersData.length) currentIdx = Math.max(0, lettersData.length - 1);
+        showLetter(currentIdx);
+        showToast('🗑 已删除');
+      });
+    }
+  }
+
+  // Toggle edit mode
+  $('letterEditToggle').addEventListener('click', () => {
+    editMode = !editMode;
+    $('letterEditToggle').textContent = editMode ? '👁️ 预览模式' : '✏️ 编辑模式';
+    $('letterEditToggle').style.background = editMode ? 'var(--pink)' : '';
+    $('letterEditToggle').style.color = editMode ? 'white' : '';
+    if (currentIdx < lettersData.length) showLetter(currentIdx);
+  });
+
+  // Navigation
+  $('letterPrev').addEventListener('click', () => {
+    if (currentIdx > 0) { currentIdx--; showLetter(currentIdx); }
+  });
+  $('letterNext').addEventListener('click', () => {
+    if (currentIdx < lettersData.length - 1) { currentIdx++; showLetter(currentIdx); }
+  });
+
+  // Init
+  loadLetters().then(() => {
+    showLetter(0);
+    window._showLetter = () => { if (currentIdx < lettersData.length) showLetter(currentIdx); };
+  });
+}
+
+// ===== Wishlist & Todo (editable) =====
+function initList() {
+  let editMode = false;
+  let wishlistData = [];
+  let todoData = [];
+  const checkedWishes = getStorage('checked_wishes', {});
+  const checkedTodos = getStorage('checked_todos', {});
+
+  async function loadData() {
+    try {
+      const db = await openDB();
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const [wReq, tReq] = [tx.objectStore(STORE_NAME).get('__wishlist__'), tx.objectStore(STORE_NAME).get('__todo__')];
+      const wResult = await new Promise(r => { wReq.onsuccess = () => r(wReq.result); wReq.onerror = () => r(null); });
+      const tResult = await new Promise(r => { tReq.onsuccess = () => r(tReq.result); tReq.onerror = () => r(null); });
+      db.close();
+      wishlistData = (wResult && Array.isArray(wResult.data)) ? wResult.data : WISHLIST.map(w => ({...w}));
+      todoData = (tResult && Array.isArray(tResult.data)) ? tResult.data : TODOLIST.map(t => ({...t}));
+    } catch(e) {
+      wishlistData = WISHLIST.map(w => ({...w}));
+      todoData = TODOLIST.map(t => ({...t}));
+    }
+  }
+
+  async function saveData(key, data) {
+    try {
+      const db = await openDB();
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).put({ id: key, data });
+      await new Promise(r => { tx.oncomplete = () => r(); tx.onerror = () => r(); });
+      db.close();
+    } catch(e) {}
+  }
+
+  function renderList(container, items, checkedMap, storageKey, dataKey) {
+    container.innerHTML = '';
+    if (items.length === 0) {
+      container.innerHTML = '<div class="list-empty">还没有内容，点「✏️ 编辑」来添加 💕</div>';
+      return;
+    }
+
+    items.forEach((item, idx) => {
+      const key = 'item_' + idx + '_' + item.text.substring(0, 10);
+      const done = !!checkedMap[key];
+
+      const el = document.createElement('div');
+      el.className = 'list-item' + (done ? ' done' : '');
+
+      const checkbox = document.createElement('div');
+      checkbox.className = 'list-checkbox';
+      checkbox.textContent = '✓';
+      checkbox.addEventListener('click', (e) => {
+        e.stopPropagation();
+        checkedMap[key] = !checkedMap[key];
+        setStorage(storageKey, checkedMap);
+        renderList(container, items, checkedMap, storageKey, dataKey);
+        updateProgress();
+      });
+
+      const emoji = document.createElement('span');
+      emoji.className = 'list-emoji';
+      emoji.textContent = item.emoji || '💕';
+
+      const textEl = document.createElement('span');
+      textEl.className = 'list-text';
+      textEl.textContent = item.text;
+
+      el.appendChild(checkbox);
+      el.appendChild(emoji);
+      el.appendChild(textEl);
+
+      if (editMode) {
+        // Delete button
+        const delBtn = document.createElement('button');
+        delBtn.className = 'item-delete';
+        delBtn.textContent = '✕';
+        delBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          items.splice(idx, 1);
+          await saveData(dataKey, items);
+          renderList(container, items, checkedMap, storageKey, dataKey);
+          updateProgress();
+          showToast('已删除');
+        });
+
+        // Click to edit text
+        el.addEventListener('click', (e) => {
+          if (e.target === delBtn || e.target === checkbox) return;
+          startInlineEdit(el, textEl, emoji, item, items, idx, container, checkedMap, storageKey, dataKey);
+        });
+
+        el.appendChild(delBtn);
+      } else {
+        el.addEventListener('click', () => {
+          checkedMap[key] = !checkedMap[key];
+          setStorage(storageKey, checkedMap);
+          renderList(container, items, checkedMap, storageKey, dataKey);
+          updateProgress();
+        });
+      }
+
+      container.appendChild(el);
+    });
+  }
+
+  function startInlineEdit(el, textEl, emojiEl, item, items, idx, container, checkedMap, storageKey, dataKey) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'item-edit-input';
+    input.value = item.text;
+    input.maxLength = 80;
+
+    textEl.replaceWith(input);
+    input.focus();
+    input.select();
+
+    async function finish() {
+      const newText = input.value.trim();
+      if (newText && newText !== item.text) {
+        item.text = newText;
+        await saveData(dataKey, items);
+        renderList(container, items, checkedMap, storageKey, dataKey);
+        updateProgress();
+      } else {
+        input.replaceWith(textEl);
+      }
+    }
+
+    input.addEventListener('blur', finish);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { input.blur(); }
+    });
+  }
+
+  function updateProgress() {
+    const wDone = Object.values(checkedWishes).filter(Boolean).length;
+    const tDone = Object.values(checkedTodos).filter(Boolean).length;
+    const activeTab = document.querySelector('.list-tab.active');
+
+    if (activeTab && activeTab.dataset.tab === 'wishlist') {
+      $('listProgress').innerHTML = wishlistData.length > 0
+        ? `已完成 <span>${wDone}</span> / ${wishlistData.length} 个愿望` : '';
+    } else if (activeTab && activeTab.dataset.tab === 'todo') {
+      $('listProgress').innerHTML = todoData.length > 0
+        ? `已完成 <span>${tDone}</span> / ${todoData.length} 个待办` : '';
+    }
+    $('listAddWrap').style.display = editMode ? '' : 'none';
+  }
+
+  // Add item handler
+  function getActiveDataKey() {
+    const activeTab = document.querySelector('.list-tab.active');
+    return activeTab.dataset.tab === 'wishlist' ? '__wishlist__' : '__todo__';
+  }
+
+  $('listAddBtn').addEventListener('click', async () => {
+    const input = $('listAddInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const dataKey = getActiveDataKey();
+    const isWish = dataKey === '__wishlist__';
+    const arr = isWish ? wishlistData : todoData;
+    arr.push({ emoji: '💕', text });
+    await saveData(dataKey, arr);
+    input.value = '';
+    refreshCurrentList();
+    updateProgress();
+    showToast('➕ 已添加');
+  });
+
+  $('listAddInput').addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') { $('listAddBtn').click(); }
+  });
+
+  function refreshCurrentList() {
+    const activeTab = document.querySelector('.list-tab.active');
+    const isWish = activeTab.dataset.tab === 'wishlist';
+    renderList($('wishlist'), wishlistData, checkedWishes, 'checked_wishes', '__wishlist__');
+    renderList($('todo'), todoData, checkedTodos, 'checked_todos', '__todo__');
+  }
+
+  // Edit mode — add a toggle in the tab area
+  const editToggle = document.createElement('button');
+  editToggle.textContent = '✏️ 编辑';
+  editToggle.style.cssText = 'margin-left:12px;padding:6px 14px;border-radius:50px;border:1px solid #e8ddd;background:var(--white);font-size:12px;cursor:pointer;font-family:var(--font-sans);color:var(--brown-light);letter-spacing:1px;transition:0.3s;';
+  editToggle.addEventListener('click', async () => {
+    editMode = !editMode;
+    editToggle.textContent = editMode ? '👁️ 完成' : '✏️ 编辑';
+    editToggle.style.background = editMode ? 'var(--pink)' : '';
+    editToggle.style.color = editMode ? 'white' : '';
+    await loadData(); // refresh from DB
+    refreshCurrentList();
+    updateProgress();
+  });
+  document.querySelector('.list-tabs').appendChild(editToggle);
+
+  // Init
+  loadData().then(() => {
+    renderList($('wishlist'), wishlistData, checkedWishes, 'checked_wishes', '__wishlist__');
+    renderList($('todo'), todoData, checkedTodos, 'checked_todos', '__todo__');
+    updateProgress();
+  });
+
+  // Tab switching
+  document.querySelectorAll('.list-tab').forEach(tab => {
+    tab.addEventListener('click', async () => {
+      document.querySelectorAll('.list-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.list-section').forEach(s => s.classList.remove('active'));
+      const target = tab.dataset.tab === 'wishlist' ? $('wishlist') : $('todo');
+      target.classList.add('active');
+      await loadData();
+      refreshCurrentList();
+      updateProgress();
+    });
+  });
+}
+
+// ===== Bottom Navigation =====
+function initNav() {
+  const navItems = document.querySelectorAll('.nav-item');
+  const pages = document.querySelectorAll('.page');
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const targetPage = item.dataset.page;
+
+      // Update nav
+      navItems.forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+
+      // Update pages
+      pages.forEach(p => p.classList.remove('active'));
+      const pageEl = document.getElementById(targetPage);
+      if (pageEl) {
+        pageEl.classList.add('active');
+        // Retrigger typewriter if switching to letters
+        if (targetPage === 'page-letters' && window._showLetter) {
+          window._showLetter();
+        }
+      }
+
+      // Scroll to top of page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+}
+
+// ===== Keyboard Navigation =====
+function initKeyboardNav() {
+  document.addEventListener('keydown', e => {
+    // Lightbox navigation
+    if (lightbox.classList.contains('open')) {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') navigateLightbox(-1);
+      if (e.key === 'ArrowRight') navigateLightbox(1);
+      return;
+    }
+
+    // Page switching with number keys
+    const pageMap = { '1': 'page-home', '2': 'page-gallery', '3': 'page-letters', '4': 'page-list' };
+    if (pageMap[e.key]) {
+      const page = pageMap[e.key];
+      document.querySelectorAll('.nav-item').forEach(n => {
+        n.classList.toggle('active', n.dataset.page === page);
+      });
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const pageEl = document.getElementById(page);
+      if (pageEl) pageEl.classList.add('active');
+      if (page === 'page-letters' && window._showLetter) window._showLetter();
+    }
+  });
+}
+
+/* ===== Service Worker for Offline Cache (Optional) ===== */
+// 如果你想支持离线访问，取消下面的注释（需要 HTTPS）
+/*
+if ('serviceWorker' in navigator) {
+  // 这里可以注册一个简单的缓存 Service Worker
+  // 但对于单文件静态网站，浏览器默认缓存通常足够了
+}
+*/
+
+/* ===== 初始化完成 ===== */
+console.log('💕 小殷 ♥ 小秦 — 我们的纪念网站已就绪');
+console.log('💡 提示：按键盘 1/2/3/4 可以快速切换页面');
+console.log('📷 照片数量：' + PHOTOS.filter(p => p.src && p.src.trim()).length + ' 张（已配置）/ ' + PHOTOS.length + ' 个位置');
+console.log('💌 情书数量：' + LETTERS.length + ' 封');
+console.log('💕 愿望清单：' + WISHLIST.length + ' 项');
+console.log('📋 待办事项：' + TODOLIST.length + ' 项');
+
+/*
+================================================================
+  📖 如何免费托管上线 & 配置说明
+================================================================
+
+  一、GitHub Pages（推荐，完全免费）
+  ─────────────────────────────────
+  1. 注册 GitHub 账号：github.com
+  2. 新建仓库（New Repository），名字随意，设为 Public
+  3. 把 index.html 上传到仓库根目录
+     - 照片也一起上传（比如放到 photos/ 文件夹）
+     - 音乐 mp3 也上传（比如放到 music/ 文件夹）
+  4. 仓库 → Settings → Pages
+     - Branch 选 main，文件夹选 / (root)
+     - 点 Save
+  5. 等待 1-2 分钟，得到链接：
+     https://你的用户名.github.io/仓库名/
+  6. 把链接发给女朋友！
+
+  二、图片配置（GitHub 仓库方式）
+  ─────────────────────────────────
+  仓库文件夹结构示例：
+  ├── index.html
+  ├── photos/
+  │   ├── 01.jpg
+  │   ├── 02.jpg
+  │   └── ...
+  └── music/
+      └── our-song.mp3
+
+  配置改为：
+  const MUSIC_URL = 'https://你的用户名.github.io/仓库名/music/our-song.mp3';
+  const PHOTOS = [
+    { src: 'https://你的用户名.github.io/仓库名/photos/01.jpg', caption: '我们的第一张合照' },
+    // ... 继续添加
+  ];
+
+  三、图片压缩建议（1000 张图必须压缩！）
+  ─────────────────────────────────
+  推荐工具：
+  - squoosh.app（在线，免费，效果最好）
+  - tinypng.com（在线，免费，批量压缩）
+  建议每张图压缩到 200-500KB，格式用 JPEG 或 WebP
+  GitHub 仓库总大小建议控制在 1GB 以内
+
+  四、Vercel / Netlify（备选方案）
+  ─────────────────────────────────
+  - vercel.com：拖拽整个文件夹到网页，自动部署
+  - netlify.com/drop：同样拖拽即可
+  - 它们会生成类似 xxx.vercel.app 的链接
+
+  五、隐私保护
+  ─────────────────────────────────
+  - 密码保护在页面本地实现，链接被分享也需要密码
+  - 如果你是 GitHub Public 仓库，别人能看到源码但进不了页面
+  - 想要完全私密：GitHub 仓库设为 Private，然后用 Vercel 部署
+    Private 仓库（需登录 GitHub 才能看到代码，但页面任何人都能访问
+    → 密码锁屏保障安全）
+
+  六、扩展功能建议
+  ─────────────────────────────────
+  - 添加纪念日倒数：在配置区域加一个 NEXT_EVENT_DATE，页面自动显示
+  - 添加留言板：可以用第三方服务如 Cusdis 或 Twikoo 嵌入评论
+  - 添加更多页面：在 HTML 里增加 .page 区块 + 底部导航按钮
+  - 更换主题色：修改 :root 里的 CSS 变量即可
+  - 添加访问统计：可以嵌入不蒜子等免费计数器
+================================================================
+*/
+</script>
+
+</body>
+</html>
