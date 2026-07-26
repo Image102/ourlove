@@ -756,6 +756,11 @@ body.locked { overflow: hidden; }
 <div class="toast" id="toast"></div>
 
 <script>
+// ===== IndexedDB 配置（必须在最顶部） =====
+var DB_NAME = 'LoveGalleryDB';
+var DB_VERSION = 1;
+var STORE_NAME = 'photos';
+
 /* ============================================================
   🔧 配置区域 —— 只改这里！！！
   ============================================================
@@ -1066,9 +1071,7 @@ function initMusic() {
 }
 
 // ===== IndexedDB Storage =====
-const DB_NAME = 'LoveGalleryDB';
-const DB_VERSION = 1;
-const STORE_NAME = 'photos';
+// DB_NAME, DB_VERSION, STORE_NAME 已在文件顶部声明
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -1085,23 +1088,44 @@ function openDB() {
   });
 }
 
+// Reliable write helper: wait for the PUT request, then close
+async function dbPut(id, data) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const req = store.put({ id, data });
+    req.onsuccess = () => { db.close(); resolve(); };
+    req.onerror = () => { db.close(); console.error('dbPut error:', req.error); reject(req.error); };
+  });
+}
+
+// Reliable read helper
+async function dbGet(id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const req = tx.objectStore(STORE_NAME).get(id);
+    req.onsuccess = () => { db.close(); resolve(req.result); };
+    req.onerror = () => { db.close(); console.error('dbGet error:', req.error); reject(req.error); };
+  });
+}
+
 function dbAddPhoto(photo) {
   return openDB().then(db => new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
-    tx.objectStore(STORE_NAME).add(photo);
-    tx.oncomplete = () => resolve();
-    tx.onerror = (e) => reject(e.target.error);
-    db.close();
+    const req = tx.objectStore(STORE_NAME).add(photo);
+    req.onsuccess = () => { db.close(); resolve(); };
+    req.onerror = () => { db.close(); console.error('dbAddPhoto error:', req.error); reject(req.error); };
   }));
 }
 
 function dbDeletePhoto(id) {
   return openDB().then(db => new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
-    tx.objectStore(STORE_NAME).delete(id);
-    tx.oncomplete = () => resolve();
-    tx.onerror = (e) => reject(e.target.error);
-    db.close();
+    const req = tx.objectStore(STORE_NAME).delete(id);
+    req.onsuccess = () => { db.close(); resolve(); };
+    req.onerror = () => { db.close(); console.error('dbDeletePhoto error:', req.error); reject(req.error); };
   }));
 }
 
@@ -1109,19 +1133,8 @@ function dbGetAllPhotos() {
   return openDB().then(db => new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readonly');
     const req = tx.objectStore(STORE_NAME).getAll();
-    req.onsuccess = () => resolve(req.result || []);
-    req.onerror = (e) => reject(e.target.error);
-    db.close();
-  }));
-}
-
-function dbClearAll() {
-  return openDB().then(db => new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    tx.objectStore(STORE_NAME).clear();
-    tx.oncomplete = () => resolve();
-    tx.onerror = (e) => reject(e.target.error);
-    db.close();
+    req.onsuccess = () => { db.close(); resolve(req.result || []); };
+    req.onerror = () => { db.close(); console.error('dbGetAllPhotos error:', req.error); reject(req.error); };
   }));
 }
 
@@ -1190,20 +1203,13 @@ async function renderGallery() {
 
   window._lbPhotos = _allPhotos;
 
-  // Update count
   $('galleryCount').textContent = '共 ' + _allPhotos.length + ' 张照片';
 
   if (_allPhotos.length === 0) {
-    for (let i = 0; i < 6; i++) {
-      const item = document.createElement('div');
-      item.className = 'gallery-item';
-      item.innerHTML = '<div class="gallery-placeholder">📷</div>';
-      container.appendChild(item);
-    }
+    container.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--brown-light);font-size:14px;letter-spacing:1px">📷<br><br>还没有照片<br>点上方「📤 上传照片」开始添加吧</div>';
     return;
   }
 
-  // Clean up old observer
   if (_observer) _observer.disconnect();
 
   _observer = new IntersectionObserver((entries) => {
@@ -1230,14 +1236,9 @@ async function renderGallery() {
 
     const img = document.createElement('img');
     img.setAttribute('data-src', photo.src);
-    img.alt = photo.caption || '我们的照片';
+    img.alt = '';
     img.style.background = 'linear-gradient(135deg, #fdf2f2, #f8e0e0, #fce4ec)';
     _observer.observe(img);
-
-    // Caption
-    const caption = document.createElement('div');
-    caption.className = 'caption';
-    caption.textContent = photo.caption || '';
 
     // Delete button (uploaded only)
     if (photo.source === 'uploaded') {
@@ -1252,7 +1253,6 @@ async function renderGallery() {
     }
 
     item.appendChild(img);
-    item.appendChild(caption);
 
     item.addEventListener('click', () => openLightbox(idx));
     container.appendChild(item);
@@ -1512,27 +1512,19 @@ function initLetters() {
 
   async function loadLetters() {
     try {
-      const db = await openDB();
-      const tx = db.transaction(STORE_NAME, 'readonly');
-      const req = tx.objectStore(STORE_NAME).get('__letters__');
-      const result = await new Promise(r => { req.onsuccess = () => r(req.result); req.onerror = () => r(null); });
-      db.close();
+      const result = await dbGet('__letters__');
       if (result && Array.isArray(result.data) && result.data.length > 0) {
         lettersData = result.data;
         return;
       }
-    } catch(e) {}
+    } catch(e) { console.error('loadLetters error:', e); }
     lettersData = LETTERS.map(l => ({ ...l }));
   }
 
   async function saveLetters() {
     try {
-      const db = await openDB();
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      tx.objectStore(STORE_NAME).put({ id: '__letters__', data: lettersData });
-      await new Promise(r => { tx.oncomplete = () => r(); tx.onerror = () => r(); });
-      db.close();
-    } catch(e) {}
+      await dbPut('__letters__', lettersData);
+    } catch(e) { console.error('saveLetters error:', e); showToast('❌ 保存失败，请重试'); }
   }
 
   function showLetter(idx) {
@@ -1659,15 +1651,11 @@ function initList() {
 
   async function loadData() {
     try {
-      const db = await openDB();
-      const tx = db.transaction(STORE_NAME, 'readonly');
-      const [wReq, tReq] = [tx.objectStore(STORE_NAME).get('__wishlist__'), tx.objectStore(STORE_NAME).get('__todo__')];
-      const wResult = await new Promise(r => { wReq.onsuccess = () => r(wReq.result); wReq.onerror = () => r(null); });
-      const tResult = await new Promise(r => { tReq.onsuccess = () => r(tReq.result); tReq.onerror = () => r(null); });
-      db.close();
+      const [wResult, tResult] = await Promise.all([dbGet('__wishlist__'), dbGet('__todo__')]);
       wishlistData = (wResult && Array.isArray(wResult.data)) ? wResult.data : WISHLIST.map(w => ({...w}));
       todoData = (tResult && Array.isArray(tResult.data)) ? tResult.data : TODOLIST.map(t => ({...t}));
     } catch(e) {
+      console.error('loadData error:', e);
       wishlistData = WISHLIST.map(w => ({...w}));
       todoData = TODOLIST.map(t => ({...t}));
     }
@@ -1675,12 +1663,8 @@ function initList() {
 
   async function saveData(key, data) {
     try {
-      const db = await openDB();
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      tx.objectStore(STORE_NAME).put({ id: key, data });
-      await new Promise(r => { tx.oncomplete = () => r(); tx.onerror = () => r(); });
-      db.close();
-    } catch(e) {}
+      await dbPut(key, data);
+    } catch(e) { console.error('saveData error:', e); showToast('❌ 保存失败，请重试'); }
   }
 
   function renderList(container, items, checkedMap, storageKey, dataKey) {
